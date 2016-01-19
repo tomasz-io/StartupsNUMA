@@ -1,0 +1,16 @@
+{
+  "global": {
+    "parseVersion": "1.5.0"
+  },
+  "applications": {
+
+    "StartupsNUMA": {
+      "applicationId": "sCvp4SCnCzcrINQFMgKKhcfUpXuCx8ptARKwyHPt",
+      "masterKey": "HyPeTrANr5lPaEpXSuJ7NWZtdwH0vGwmtZWJAR9x"
+    },
+
+    "_default": {
+      "link": "StartupsNUMA"
+    }
+  }
+}

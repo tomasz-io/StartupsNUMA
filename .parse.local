@@ -1,0 +1,10 @@
+{
+  "applications": {
+    "StartupsNUMA": {
+      "applicationId": "sCvp4SCnCzcrINQFMgKKhcfUpXuCx8ptARKwyHPt"
+    },
+    "_default": {
+      "link": "StartupsNUMA"
+    }
+  }
+}
