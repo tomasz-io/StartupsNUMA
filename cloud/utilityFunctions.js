@@ -1,9 +1,11 @@
 module.exports = {
   separateTags: function(string) {
     //this returns an array of words that were previously separated by commas
-    var arr = Array();
+    var arr;
 
     if(string != null && string != " "){
+
+      arr = Array();
       if(string.indexOf("\n") != -1)
       {
         // console.log("new line found");
