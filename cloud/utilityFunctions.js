@@ -14,7 +14,9 @@ module.exports = {
         arr = string.split(",");
       } else if (string.indexOf(";") != -1){
         arr = string.split(";");
-      } else {
+      } else if (string.indexOf("#") != -1){
+        arr = string.split("#");
+      }else {
         arr = [string];
       }
     }
