@@ -58,7 +58,12 @@ Parse.Cloud.job("importSeason3", function(request, status) {
       for (var x = 0; x < arrayColumns.length; x++) {
         var columnName = arrayColumns[x];
         var columnValue = startup.get(columnName);
-        s3Startup.set(columnName, utilities.separateTags(columnValue));
+        var array = utilities.separateTags(columnValue);
+        if(array){
+          array = utilities.trimArrayStrings(array);
+          s3Startup.set(columnName, array);
+        }
+
       }
 
       var booleanColumns = ["isRaising", "hasBusinessPlan", "didWorkTogether",

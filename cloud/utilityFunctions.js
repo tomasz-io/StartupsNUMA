@@ -32,6 +32,13 @@ module.exports = {
     return date;
   },
 
+  trimArrayStrings: function(arr) {
+    for (var i = 0; i < arr.length; i++) {
+      arr[i] = arr[i].trim(); //remove leading and trailing whitespace
+    }
+    return arr
+  },
+
   toLowerCase: function(arr) {
     for (var i = 0; i < arr.length; i++) {
       arr[i] = arr[i].trim().toLowerCase(); //remove leading and trailing whitespace

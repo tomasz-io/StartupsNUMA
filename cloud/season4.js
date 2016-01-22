@@ -13,6 +13,7 @@ Parse.Cloud.job("importSeason4", function(request, status) {
     var allStartups = Array();
 
     //iterate through all startups
+    console.log("results: " + results.length);
     for(var i=0, len=results.length; i < len; i++){
 
       var startup = results[i];
@@ -60,7 +61,11 @@ Parse.Cloud.job("importSeason4", function(request, status) {
       for (var x = 0; x < arrayColumns.length; x++) {
         var columnName = arrayColumns[x];
         var columnValue = startup.get(columnName);
-        s4Startup.set(columnName, utilities.separateTags(columnValue));
+        var array = utilities.separateTags(columnValue);
+        if(array){
+          array = utilities.trimArrayStrings(array);
+          s4Startup.set(columnName, array);
+        }
       }
 
       var booleanColumns = [
@@ -161,25 +166,37 @@ Parse.Cloud.job("importSeason4", function(request, status) {
       var allEvaluatorRatings = Array();
 
       var evaluatorArrays = {
-        //TEXT
+        //Text
         "allEvaluatorNames" : Array(),
         "allEvaluatorNotes" : Array(),
+        "allRatingsTech" : Array(),
+        //Integer
+        "allRatingsDetermination" : Array(),
+        "allRatingsInnovation" : Array(),
+        "allRatingsSocialProof" : Array(),
+        "allRatingsTraction" : Array(),
+        "allRatingsProduct" : Array(),
+        //Float
+        "allRatingsOverall" : Array()
       }
 
       var evaluatorTextFields = {
         "allEvaluatorNames" : "Name",
-        "allEvaluatorNotes" : "Comments"
+        "allEvaluatorNotes" : "Comments",
       }
 
-      var evaluatorIntegers = {
+      var evaluatorIntegerFields = {
         "allRatingsDetermination" : "Teamdeterminationflexibilityrating",
         "allRatingsInnovation" : "Levelofinnovationdisruptionrating",
         "allRatingsSocialProof" : "Socialproofrating",
-        "allRatingsTech" : "Evaluator1Technologyrating",
-        "allRatingsTraction" : "Evaluator1Abilitytogaintractionrating",
+        "allRatingsTech" : "Technologyrating",
+        "allRatingsTraction" : "Abilitytogaintractionrating",
         "allRatingsProduct" : "Productrating"
       }
 
+      var evaluatorFloatFields = {
+        "allRatingsOverall" : "Rating"
+      }
 
       var maxEvaluators = 45;
       for(var j=0; j < maxEvaluators; j++){
@@ -196,6 +213,30 @@ Parse.Cloud.job("importSeason4", function(request, status) {
         }
       }
 
+      for(var j=0; j < maxEvaluators; j++){
+        var rating = parseInt(startup.get("Evaluator" + j + "Rating"));
+        if (rating) {
+          for (var key in evaluatorIntegerFields) {
+            if (evaluatorIntegerFields.hasOwnProperty(key)) {
+              var columnValue = startup.get("Evaluator" + j + evaluatorIntegerFields[key]);
+              evaluatorArrays[key].push(parseInt(columnValue));
+            }
+          }
+        }
+      }
+
+      for(var j=0; j < maxEvaluators; j++){
+        var rating = parseInt(startup.get("Evaluator" + j + "Rating"));
+        if (rating) {
+          for (var key in evaluatorFloatFields) {
+            if (evaluatorFloatFields.hasOwnProperty(key)) {
+              var columnValue = startup.get("Evaluator" + j + evaluatorFloatFields[key]);
+              evaluatorArrays[key].push(parseFloat(columnValue));
+            }
+          }
+        }
+      }
+
       s4Startup.set("allEvaluatorRatings", allEvaluatorRatings);
       for (var key in evaluatorArrays) {
         if (evaluatorArrays.hasOwnProperty(key)) {
@@ -205,7 +246,7 @@ Parse.Cloud.job("importSeason4", function(request, status) {
 
       allStartups.push(s4Startup);
     }
-    console.log(allStartups);
+    console.log("all startups processed: " + allStartups.length);
     return Parse.Object.saveAll(allStartups);
   }).then(function() {
       console.log("calling success");
