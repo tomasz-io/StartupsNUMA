@@ -1,9 +1,9 @@
 var utilities = require('cloud/utilityFunctions.js');
 
 
-Parse.Cloud.job("importSeason5", function(request, status) {
+Parse.Cloud.job("importSeason6", function(request, status) {
 
-  console.log("started importSeason5");
+  console.log("started importSeason6");
   var RawData = Parse.Object.extend("RawData");
   var query = new Parse.Query(RawData);
   query.limit(1000);
@@ -17,14 +17,17 @@ Parse.Cloud.job("importSeason5", function(request, status) {
     for(var i=0, len=results.length; i < len; i++){
 
       var startup = results[i];
-      var Season5 = Parse.Object.extend("Season5");
-      var s5Startup = new Season5();
+      var Season6 = Parse.Object.extend("Season6");
+      var s6Startup = new Season6();
 
 //BASIC INFO
 
+
+
+
       var stringColumns = [ "name", "city", "country", "tagline",
       "longDescription", "whatsDifferent", "howCustomersInteract",
-      "fundingStage",
+      "fundingStage", "fourMonthGoal",
       "amountRaisingCurrency", "valuationCurrency", "status",
       "foundersTimeAcquainted", "howFoundersMet", "howChangeWorld",
       "lackingCompetencies", "foundersPreviousProject", "runway", "website",
@@ -42,7 +45,7 @@ Parse.Cloud.job("importSeason5", function(request, status) {
         var columnName = stringColumns[x];
         var columnValue = startup.get(columnName);
         if(columnValue && columnValue != " "){
-          s5Startup.set(columnName, columnValue);
+          s6Startup.set(columnName, columnValue);
         }
       }
 
@@ -51,12 +54,12 @@ Parse.Cloud.job("importSeason5", function(request, status) {
       for (var x = 0; x <dateColumns.length; x++){
         var columnName = dateColumns[x];
         var columnValue = startup.get(columnName);
-        s5Startup.set(columnName, utilities.parseDate(columnValue));
+        s6Startup.set(columnName, utilities.parseDate(columnValue));
       }
 
       var arrayColumns = ["skillsOrMarkets", "links", "videos", "foundersNames",
-      "foundersAge", "foundersEmails", "foundersPhones", "foundersSkills",
-      "foundersNationalities", "foundersLanguages", "foundersCountriesLived",
+      "foundersAge", "foundersGenders", "foundersEmails", "foundersPhones", "foundersSkills",
+      "foundersNationalities", "foundersLanguages", "foundersDiplomas", "foundersCountriesLived",
       "foundersStartupExperience", "foundersTechExperience", "foundersWhyYou",
       "markets", "tech", "industrySector", "industry", "interestingProjectOrHack", "tags"];
 
@@ -66,7 +69,7 @@ Parse.Cloud.job("importSeason5", function(request, status) {
         var array = utilities.separateTags(columnValue);
         if(array){
           array = utilities.trimArrayStrings(array);
-          s5Startup.set(columnName, array);
+          s6Startup.set(columnName, array);
         }
       }
 
@@ -77,9 +80,9 @@ Parse.Cloud.job("importSeason5", function(request, status) {
         var columnValue = startup.get(columnName);
         if(columnValue && columnValue != " "){
           if(columnValue.indexOf("Yes") > -1) { //string contains 'YES'
-            s5Startup.set(columnName, true);
+            s6Startup.set(columnName, true);
           } else {
-            s5Startup.set(columnName, false);
+            s6Startup.set(columnName, false);
           }
         }
       }
@@ -88,14 +91,14 @@ Parse.Cloud.job("importSeason5", function(request, status) {
       for (var x; x < integerColumns.length; x++) {
         var columnName = integerColumns[x];
         var columnValue = startup.get(columnName);
-        s5Startup.set(columnName, parseInt(columnValue));
+        s6Startup.set(columnName, parseInt(columnValue));
       }
 
       var floatColumns = ["averageRating"];
       for (var x; x < floatColumns.length; x++) {
         var columnName = floatColumns[x];
         var columnValue = startup.get(columnName);
-        s5Startup.set(columnName, parseFloat(columnValue));
+        s6Startup.set(columnName, parseFloat(columnValue));
       }
 
 //TEAM MEMBERS
@@ -134,7 +137,7 @@ Parse.Cloud.job("importSeason5", function(request, status) {
         "allMemberLinks" : "Links"
       }
 
-      var maxPeople = 8;
+      var maxPeople = 7;
       for(var j=0; j < maxPeople; j++){
         var member = startup.get("Person" + j);
         if (member && member != " ") {
@@ -156,10 +159,10 @@ Parse.Cloud.job("importSeason5", function(request, status) {
         }
       }
 
-      s5Startup.set("allMembers", allMembers);
+      s6Startup.set("allMembers", allMembers);
       for (var key in memberArrays) {
         if (memberArrays.hasOwnProperty(key)) {
-          s5Startup.set(key, memberArrays[key]);
+          s6Startup.set(key, memberArrays[key]);
         }
       }
 
@@ -171,13 +174,16 @@ Parse.Cloud.job("importSeason5", function(request, status) {
         //Text
         "allEvaluatorNames" : Array(),
         "allEvaluatorNotes" : Array(),
-        "allRatingsTech" : Array(),
         //Integer
-        "allRatingsDetermination" : Array(),
+      //"allRatingsTech" : Array(),
+      //"allRatingsDetermination" : Array(),
+      //"allRatingsSocialProof" : Array(),
+      //"allRatingsTraction" : Array(),
+      //"allRatingsProduct" : Array(),
+        "allRatingsTeam" : Array(),
         "allRatingsInnovation" : Array(),
-        //"allRatingsSocialProof" : Array(),
-        "allRatingsTraction" : Array(),
-        //"allRatingsProduct" : Array(),
+        "allRatingBusinnessOpportunity" : Array(),
+        "allRatingsCompetitiveAdvantage" : Array(),
         "allRatingsGeneralFeeling" : Array(),
         //Float
         "allRatingsOverall" : Array()
@@ -189,18 +195,22 @@ Parse.Cloud.job("importSeason5", function(request, status) {
       }
 
       var evaluatorIntegerFields = {
-        "allRatingsDetermination" : "Teamcomplementarityanddeterminationrating",
-        "allRatingsInnovation" : "LevelofInnovationdisruptionrating",
-        "allRatingsTech" : "Technologyrating",
-        "allRatingsTraction" : "Abilitytogaintractionrating",
-        "allRatingsGeneralFeeling" : "GeneralfeelingIntuitionrating"
+        "allRatingsTeam" : "Teamrating",
+        "allRatingsInnovation" : "LevelofInnovationrating",
+        "allRatingsGeneralFeeling" : "GeneralFeelingrating",
+        "allRatingBusinnessOpportunity" : "BusinessOpportunityrating",
+        "allRatingsCompetitiveAdvantage" : "CompetAdvantagerating"
+        //"allRatingsTech" : "Technologyrating",
+        //"allRatingsTraction" : "Abilitytogaintractionrating",
+        //"allRatingsDetermination" : "Teamrating",
+
       }
 
       var evaluatorFloatFields = {
         "allRatingsOverall" : "Rating"
       }
 
-      var maxEvaluators = 77;
+      var maxEvaluators = 81;
       for(var j=0; j < maxEvaluators; j++){
         var rating = parseInt(startup.get("Evaluator" + j + "Rating"));
         if (rating) {
@@ -239,21 +249,21 @@ Parse.Cloud.job("importSeason5", function(request, status) {
         }
       }
 
-      s5Startup.set("allEvaluatorRatings", allEvaluatorRatings);
+      s6Startup.set("allEvaluatorRatings", allEvaluatorRatings);
       for (var key in evaluatorArrays) {
         if (evaluatorArrays.hasOwnProperty(key)) {
-          s5Startup.set(key, evaluatorArrays[key]);
+          s6Startup.set(key, evaluatorArrays[key]);
         }
       }
 
-      allStartups.push(s5Startup);
+      allStartups.push(s6Startup);
     }
     console.log("all startups processed: " + allStartups.length);
     return Parse.Object.saveAll(allStartups);
   }).then(function() {
       console.log("calling success");
-      status.success("importSeason5 success");
+      status.success("importSeason6 success");
   }, function(error) {
-      status.error("importSeason5 error : " + error);
+      status.error("importSeason6 error : " + error);
   });
 });
